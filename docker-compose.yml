@@ -9,7 +9,7 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - server/employeemanagement/.local_env
+      - server/employeemanagement/.env
     depends_on:
       - db
     command: python server/employeemanagement/manage.py runserver 0.0.0.0:8000
@@ -19,7 +19,7 @@ services:
     container_name: mysql-db
     # restart: always
     env_file:
-      - server/employeemanagement/.local_env
+      - server/employeemanagement/.env
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
@@ -30,17 +30,17 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
   react-app:
-    build: 
+    build:
       context: ./client
       dockerfile: Dockerfile
-    container_name: react-app
-    ports:
-      - "5173:5173"
     volumes:
-      - .:/app
+      - ./client/ems:/app
       - /app/node_modules
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-
+    ports:
+      - 5173:5173
+    env_file:
+      - ./client/ems/.env
+    depends_on:
+      - web
 volumes:
   mysql_data:
