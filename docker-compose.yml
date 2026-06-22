@@ -15,10 +15,11 @@ services:
       DB_HOST: db
       DB_PORT: 3306
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     command: >
       sh -c "
-      sleep 15 &&
+      sleep 30 &&
       python server/employeemanagement/manage.py migrate &&
       python server/employeemanagement/manage.py runserver 0.0.0.0:8000
       "
@@ -26,7 +27,7 @@ services:
   db:
     image: mysql:8.0
     container_name: mysql-db
-    #restart: always
+    restart: always
     environment:
       MYSQL_DATABASE: ems
       MYSQL_USER: emsuser
@@ -36,6 +37,10 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   react-app:
     build:
